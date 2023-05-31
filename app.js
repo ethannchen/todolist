@@ -59,7 +59,7 @@ app.get("/", function (req, res) {
     }else{
       res.render("list", { listName: "Today", newListItems: data });
     }
-  })
+  }).catch()
 
 });
 
@@ -80,7 +80,7 @@ app.post("/", function (req, res) {
       // Item.insertMany([item]);
       result.save();
       res.redirect("/"+listName);
-    })
+    }).catch()
   }
 
 });
@@ -93,13 +93,13 @@ app.post("/delete", function (req, res) {
 
   
   if (listName==='Today') {
-    Item.findByIdAndDelete(itemId).then()
+    Item.findByIdAndDelete(itemId).then().catch()
     res.redirect("/");
   }else{
     List.findOneAndUpdate(
       {listName:listName},
       {$pull:{items:{_id:itemId}}}
-    ).then((found)=>{found.save()})
+    ).then((found)=>{found.save()}).catch()
     res.redirect("/"+listName);
   }
   
@@ -127,7 +127,7 @@ app.get("/:listName", (req,res)=>{
     }else{
       res.render("list", { listName: listName, newListItems: result.items });
     }
-  })
+  }).catch()
   
   
 })
