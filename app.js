@@ -43,27 +43,25 @@ const List = mongoose.model("List", listSchema);
 // const defaultItems = 
 const workItems = [];
 
-app.get("/", function (req, res) {
+app.get("/", async function (req, res) {
   // const day = date.getDate();
 
+  const data = await Item.find();
+  if (data.length === 0) {    
+    const item1 = new Item({ name: "cook" });
+    const item2 = new Item({ name: "eat" });
+    const item3 = new Item({ name: "wash" });
 
-  Item.find().then((data)=>{
-    if (data.length === 0) {    
-      const item1 = new Item({ name: "cook" });
-      const item2 = new Item({ name: "eat" });
-      const item3 = new Item({ name: "wash" });
+    await Item.insertMany([item1, item2, item3]);
+    res.redirect('/')
+    
+  }else{
+    res.render("list", { listName: "Today", newListItems: data });
+  }
+})
 
-      Item.insertMany([item1, item2, item3]);
-      res.redirect('/')
-      
-    }else{
-      res.render("list", { listName: "Today", newListItems: data });
-    }
-  }).catch(err => console.log(err))
 
-});
-
-app.post("/", function (req, res) {
+app.post("/", async function (req, res) {
   // const item = req.body.newItem;
   const newItem = req.body.newItem
   const listName = req.body.listName
@@ -75,7 +73,7 @@ app.post("/", function (req, res) {
     item.save()
     res.redirect('/')
   }else{
-    List.findOne({listName:listName}).then((result)=>{
+    await List.findOne({listName:listName}).then((result)=>{
       result.items.push(item)
       // Item.insertMany([item]);
       result.save();
@@ -86,17 +84,17 @@ app.post("/", function (req, res) {
 });
 
 
-app.post("/delete", function (req, res) {
+app.post("/delete", async function (req, res) {
   const itemId = new mongoose.Types.ObjectId(req.body.id)
   const listName = req.body.listName
 
 
   
   if (listName==='Today') {
-    Item.findByIdAndDelete(itemId).then().catch(err => console.log(err))
+    await Item.findByIdAndDelete(itemId).then().catch(err => console.log(err))
     res.redirect("/");
   }else{
-    List.findOneAndUpdate(
+    await List.findOneAndUpdate(
       {listName:listName},
       {$pull:{items:{_id:itemId}}}
     ).then((found)=>{found.save()}).catch(err => console.log(err))
@@ -116,9 +114,9 @@ app.get("/about", function (req, res) {
 });
 
 
-app.get("/:listName", (req,res)=>{
+app.get("/:listName", async (req,res)=>{
   let listName = _.capitalize(req.params.listName)
-  List.findOne({listName:listName}).then((result)=>{
+  await List.findOne({listName:listName}).then((result)=>{
     // console.log(result)
     if (!result) {
       let list = new List({ listName: listName, items: [] })
