@@ -17,6 +17,7 @@ app.use(express.static("public"));
 main().catch((err) => console.log(err));
 async function main() {
   await mongoose.connect(process.env.DB);
+  console.log("MongoDB connected successfully!!!!")
 
   // await mongoose.connect("mongodb+srv://yy:esG6qOnYzwJT70Fl@cluster0.uynj9hu.mongodb.net/");
 }
