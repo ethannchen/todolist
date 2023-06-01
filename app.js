@@ -46,18 +46,20 @@ const workItems = [];
 app.get("/", async function (req, res) {
   // const day = date.getDate();
 
-  const data = await Item.find();
-  if (data.length === 0) {    
-    const item1 = new Item({ name: "cook" });
-    const item2 = new Item({ name: "eat" });
-    const item3 = new Item({ name: "wash" });
-
-    await Item.insertMany([item1, item2, item3]);
-    res.redirect('/')
-    
-  }else{
-    res.render("list", { listName: "Today", newListItems: data });
-  }
+  await Item.find().then((data)=>{
+    if (data.length === 0) {    
+      const item1 = new Item({ name: "cook" });
+      const item2 = new Item({ name: "eat" });
+      const item3 = new Item({ name: "wash" });
+  
+      Item.insertMany([item1, item2, item3]);
+      res.redirect('/')
+      
+    }else{
+      res.render("list", { listName: "Today", newListItems: data });
+    }
+  }).catch(err => console.log(err))
+  
 })
 
 
@@ -70,7 +72,7 @@ app.post("/", async function (req, res) {
 
 
   if (listName==='Today') {
-    item.save()
+    await item.save()
     res.redirect('/')
   }else{
     await List.findOne({listName:listName}).then((result)=>{
